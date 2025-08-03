@@ -44,7 +44,6 @@ chmod +x tests/test_comparar_cambios.sh
 ### Comparison Feature (`comparar_cambios`)
 - **Mode 1**: Git branch comparison - generates patch files and reports
 - **Mode 2**: File/directory diff comparison using `diff -ru`
-- Optional integration with Ollama LLM for generating summaries
 - Outputs saved to `$HOME` directory with date stamps
 - Report files follow naming convention: `${GRUPO}_comparacion-${DATE}.txt`
 
@@ -60,5 +59,4 @@ chmod +x tests/test_comparar_cambios.sh
 
 ## Dependencies
 - Standard bash utilities: `git`, `diff`, `pwd`, `date`
-- Optional: `ollama` command for LLM-powered summaries
 - All error handling includes checks for command availability and Git repository status

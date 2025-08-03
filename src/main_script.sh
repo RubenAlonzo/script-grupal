@@ -83,18 +83,6 @@ comparar_cambios() {
         return
     fi
 
-    # Preguntar si desea resumen con Ollama
-    read -p "¿Desea generar un resumen con Ollama? (s/n): " RES
-    if [[ "$RES" =~ ^[Ss]$ ]]; then
-        if ! command -v ollama &>/dev/null; then
-            echo "⚠ Ollama no está instalado. No se puede generar el resumen."
-        else
-            echo "Generando resumen con Ollama..."
-            RESUMEN=$(ollama run llama3.1:latest "Resume estos cambios de forma simple:\n$(cat "$REPORTE")")
-            echo -e "\n=== Resumen con LLM ===" >> "$REPORTE"
-            echo "$RESUMEN" >> "$REPORTE"
-        fi
-    fi
 
     echo "✅ Reporte final guardado en: $REPORTE"
 }

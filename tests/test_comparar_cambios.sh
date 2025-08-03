@@ -58,7 +58,6 @@ git checkout -q master
     echo "1"            # Seleccionar modo Git
     echo "master"       # Rama base
     echo "test"         # Rama comparar
-    echo "n"            # No usar Ollama
 ) | comparar_cambios
 
 assert_file_exists "$PATCH_OUTPUT"
@@ -80,7 +79,6 @@ echo "dos" > "$DIR2/archivo.txt"
     echo "2"          # Modo diff
     echo "$DIR1"      # Primer archivo/directorio
     echo "$DIR2"      # Segundo archivo/directorio
-    echo "n"          # No usar Ollama
 ) | comparar_cambios
 
 assert_file_contains "$REPORT_OUTPUT" "Comparación entre: $DIR1 y $DIR2"
