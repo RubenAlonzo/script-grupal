@@ -2,11 +2,11 @@
 # Script de tests para la función comparar_cambios
 
 # Ruta relativa al script principal
-SCRIPT_PATH="../src/main_script.sh"
+SCRIPT_PATH="$(dirname "$0")/../src/main_script.sh"
 TEMP_DIR=$(mktemp -d)
 TEST_REPO="$TEMP_DIR/repo_test"
 FECHA=$(date +%F)
-PATCH_OUTPUT="$HOME/diff_mainvstest-$FECHA.patch"
+PATCH_OUTPUT="$HOME/diff_mastervstest-$FECHA.patch"
 REPORT_OUTPUT="$HOME/Grupo1_comparacion-$FECHA.txt"
 
 # =============================
@@ -42,6 +42,8 @@ source "$SCRIPT_PATH"
 echo "=== TEST 1: Comparación de ramas con Git ==="
 mkdir "$TEST_REPO" && cd "$TEST_REPO" || exit 1
 git init -q
+git config user.email "test@example.com"
+git config user.name "Test User"
 echo "Linea original" > archivo.txt
 git add archivo.txt
 git commit -q -m "Commit inicial"
@@ -49,19 +51,19 @@ git commit -q -m "Commit inicial"
 git checkout -q -b test
 echo "Linea nueva" >> archivo.txt
 git commit -q -am "Cambio en rama test"
-git checkout -q main
+git checkout -q master
 
 # Simular entrada de usuario para modo Git
 (
     echo "1"            # Seleccionar modo Git
-    echo "main"         # Rama base
+    echo "master"       # Rama base
     echo "test"         # Rama comparar
     echo "n"            # No usar Ollama
 ) | comparar_cambios
 
 assert_file_exists "$PATCH_OUTPUT"
 assert_file_exists "$REPORT_OUTPUT"
-assert_file_contains "$REPORT_OUTPUT" "Comparación entre ramas: main vs test"
+assert_file_contains "$REPORT_OUTPUT" "Comparación entre ramas: master vs test"
 assert_file_contains "$REPORT_OUTPUT" "Linea nueva"
 
 # =============================

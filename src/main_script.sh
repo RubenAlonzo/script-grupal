@@ -118,24 +118,31 @@ funcionalidad_5() {
 # =========================
 # Menú principal
 # =========================
-while true; do
-    echo "=== Proyecto Final - Menú Principal ==="
-    echo "1) Comparar cambios (Git o diff) - [Tu Nombre]"
-    echo "2) Funcionalidad 2 - [Miembro 2]"
-    echo "3) Funcionalidad 3 - [Miembro 3]"
-    echo "4) Funcionalidad 4 - [Miembro 4]"
-    echo "5) Funcionalidad 5 - [Miembro 5]"
-    echo "0) Salir"
-    read -p "Seleccione una opción: " OPCION
+main_menu() {
+    while true; do
+        echo "=== Proyecto Final - Menú Principal ==="
+        echo "1) Comparar cambios (Git o diff) - [Tu Nombre]"
+        echo "2) Funcionalidad 2 - [Miembro 2]"
+        echo "3) Funcionalidad 3 - [Miembro 3]"
+        echo "4) Funcionalidad 4 - [Miembro 4]"
+        echo "5) Funcionalidad 5 - [Miembro 5]"
+        echo "0) Salir"
+        read -p "Seleccione una opción: " OPCION
 
-    case $OPCION in
-        1) comparar_cambios ;;
-        2) funcionalidad_2 ;;
-        3) funcionalidad_3 ;;
-        4) funcionalidad_4 ;;
-        5) funcionalidad_5 ;;
-        0) echo "Saliendo..."; exit 0 ;;
-        *) echo "Opción inválida. Intente de nuevo." ;;
-    esac
-    echo
-done
+        case $OPCION in
+            1) comparar_cambios ;;
+            2) funcionalidad_2 ;;
+            3) funcionalidad_3 ;;
+            4) funcionalidad_4 ;;
+            5) funcionalidad_5 ;;
+            0) echo "Saliendo..."; exit 0 ;;
+            *) echo "Opción inválida. Intente de nuevo." ;;
+        esac
+        echo
+    done
+}
+
+# Solo ejecutar el menú si el script se ejecuta directamente (no cuando se hace source)
+if [[ "${BASH_SOURCE[0]}" == "${0}" ]]; then
+    main_menu
+fi
