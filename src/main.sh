@@ -25,9 +25,17 @@ mostrar_info() {
   echo
 }
 
+# Ruben Alonzo.
 # Función para comparar cambios: Git o diff
+# Esta función permite al usuario elegir entre comparar ramas de un repositorio Git o comparar archivos/carpetas usando diff.
+# Genera un patch o diff según la opción elegida y lo guarda en el directorio del usuario.
 comparar_cambios() {
+  echo "========================="
   echo "-- COMPARAR CAMBIOS --"
+  echo -e "By: Ruben Alonzo\n"
+  echo "Esta función permite al usuario elegir entre comparar ramas de un repositorio Git o comparar archivos/carpetas usando diff."
+  echo "Genera un patch o diff según la opción elegida y lo guarda en el directorio del usuario."
+  echo "========================="
   echo "1) Usar Git (ramas)"
   echo "2) Usar diff (archivos/carpetas)"
   read -p "Elija modo [1-2]: " modo
