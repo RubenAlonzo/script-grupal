@@ -22,6 +22,7 @@
 # =========================
 # Variables generales del proyecto
 # =========================
+GRUPO="Grupo1"
 DIRECTORIO_ACTUAL=$(pwd)
 FECHA=$(date +%F_%H-%M-%S)
 
@@ -104,7 +105,7 @@ comparar_cambios() {
             return
         fi
 
-        PATCH_FILE="$OUTPUT_DIR/diff_${BASE}vs${COMPARE}_$FECHA.patch"
+        PATCH_FILE="$OUTPUT_DIR/${GRUPO}_diff_${BASE}vs${COMPARE}_$FECHA.patch"
         git -C "$REPO_PATH" diff "$BASE" "$COMPARE" > "$PATCH_FILE"
 
         if [ ! -s "$PATCH_FILE" ]; then
@@ -121,7 +122,7 @@ comparar_cambios() {
         INSERTIONS=$(echo "$STATS_OUTPUT" | tail -1 | grep -o '[0-9]\+ insertion' | grep -o '[0-9]\+' || echo "0")
         DELETIONS=$(echo "$STATS_OUTPUT" | tail -1 | grep -o '[0-9]\+ deletion' | grep -o '[0-9]\+' || echo "0")
         
-        REPORTE="$OUTPUT_DIR/diff_comparison_report_$FECHA.txt"
+        REPORTE="$OUTPUT_DIR/${GRUPO}_comparison_report_$FECHA.txt"
         echo "=== Reporte de cambios (Git) - $(date) ===" > "$REPORTE"
         echo "Repositorio: $REPO_PATH" >> "$REPORTE"
         echo "Comparación entre ramas: $BASE vs $COMPARE" >> "$REPORTE"
@@ -162,7 +163,7 @@ comparar_cambios() {
             return
         fi
 
-        DIFF_FILE="$OUTPUT_DIR/diff_$FECHA.txt"
+        DIFF_FILE="$OUTPUT_DIR/${GRUPO}_diff_$FECHA.txt"
         diff -ru "$FILE1" "$FILE2" > "$DIFF_FILE"
 
         if [ ! -s "$DIFF_FILE" ]; then
@@ -178,7 +179,7 @@ comparar_cambios() {
         REMOVED_LINES=$(grep -c '^-' "$DIFF_FILE" || echo "0")
         MODIFIED_FILES=$(grep -c '^diff' "$DIFF_FILE" || echo "0")
         
-        REPORTE="$OUTPUT_DIR/diff_comparison_report_$FECHA.txt"
+        REPORTE="$OUTPUT_DIR/${GRUPO}_comparison_report_$FECHA.txt"
         echo "=== Reporte de cambios (diff) - $(date) ===" > "$REPORTE"
         echo "Comparación entre: $FILE1 y $FILE2" >> "$REPORTE"
         echo "Archivo diff: $DIFF_FILE" >> "$REPORTE"
