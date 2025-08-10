@@ -116,7 +116,8 @@ capture_existing_files() {
     mapfile -t EXISTING_FILES < <(find "$HOME" -maxdepth 1 \( \
         -name "Grupo1_diff_*" -o \
         -name "*_diff_*.patch" -o \
-        -name "*_diff_*.txt" \
+        -name "*_diff_*.txt" -o \
+        -name "Grupo1_archivos_grandes_*" \
     \) -type f 2>/dev/null || true)
 }
 
@@ -143,7 +144,8 @@ detect_new_files() {
     mapfile -t current_files < <(find "$HOME" -maxdepth 1 \( \
         -name "Grupo1_diff_*" -o \
         -name "*_diff_*.patch" -o \
-        -name "*_diff_*.txt" \
+        -name "*_diff_*.txt" -o \
+        -name "Grupo1_archivos_grandes_*" \
     \) -type f 2>/dev/null || true)
     
     for file in "${current_files[@]}"; do
@@ -262,7 +264,7 @@ test_menu_display() {
     
     assert_contains "$output" "Menú:" "Menu header"
     assert_contains "$output" "1) Comparar cambios" "Option 1"
-    assert_contains "$output" "2) Funcionalidad 2" "Option 2"
+    assert_contains "$output" "2) Encontrar archivos grandes" "Option 2"
     assert_contains "$output" "3) Funcionalidad 3" "Option 3"
     assert_contains "$output" "4) Funcionalidad 4" "Option 4"
     assert_contains "$output" "5) Funcionalidad 5" "Option 5"
@@ -292,9 +294,9 @@ test_menu_pending_functions() {
     echo
     echo "=== MENU TESTS: Pending Functions ==="
     
-    # Test option 2
-    local output2=$(printf "2\n0\n" | timeout 5 bash "$SCRIPT_PATH" 2>/dev/null || true)
-    assert_contains "$output2" "Funcionalidad pendiente" "Option 2 pending message"
+    # Test option 2 (should execute encontrar_archivos_grandes, not pending)
+    local output2=$(printf "2\n/tmp\n0\n" | timeout 10 bash "$SCRIPT_PATH" 2>/dev/null || true)
+    assert_contains "$output2" "-- ENCONTRAR ARCHIVOS GRANDES --" "Option 2 executes large files function"
     
     # Test option 3
     local output3=$(printf "3\n0\n" | timeout 5 bash "$SCRIPT_PATH" 2>/dev/null || true)
@@ -388,6 +390,55 @@ test_comparar_cambios_invalid_mode() {
     local output=$(echo "$input" | timeout 10 bash "$SCRIPT_PATH" 2>/dev/null || true)
     
     assert_contains "$output" "Opción inválida" "Invalid mode message"
+}
+
+# =============================
+# LARGE FILES FUNCTION TESTS
+# =============================
+
+test_encontrar_archivos_grandes() {
+    echo
+    echo "=== LARGE FILES TESTS: Find Large Files (100MB+) ==="
+    
+    # Create test files with different sizes
+    local test_dir="$TEMP_DIR/size_test"
+    mkdir -p "$test_dir"
+    
+    # Create a large file (> 100MB for testing)
+    dd if=/dev/zero of="$test_dir/large_file.txt" bs=1M count=101 2>/dev/null
+    # Create a smaller file (< 100MB)
+    dd if=/dev/zero of="$test_dir/medium_file.txt" bs=1M count=50 2>/dev/null
+    # Create a small file
+    echo "small content" > "$test_dir/small_file.txt"
+    
+    # Test the function
+    local input=$(printf "2\n$test_dir\n0\n")
+    local output=$(echo "$input" | timeout 15 bash "$SCRIPT_PATH" 2>/dev/null || true)
+    
+    assert_contains "$output" "-- ENCONTRAR ARCHIVOS GRANDES --" "Function header"
+    assert_contains "$output" "Resultados guardados en:" "Success message"
+    
+    # Check if results file was created
+    detect_new_files
+    local expected_pattern="Grupo1_archivos_grandes_100M_"
+    local file_found=false
+    for file in "${CREATED_FILES[@]}"; do
+        if [[ "$file" == *"$expected_pattern"* ]] && [[ "$file" == *.txt ]]; then
+            file_found=true
+            assert_file_exists "$file" "Large files result file creation"
+            # Check if the large file is in the results and formatted properly
+            assert_file_contains "$file" "large_file.txt" "Large file found in results"
+            assert_file_contains "$file" "Tamaño:" "Friendly format with size label"
+            assert_file_contains "$file" "Total de archivos encontrados:" "Summary with file count"
+            break
+        fi
+    done
+    
+    if [ "$file_found" = false ]; then
+        echo "❌ FAIL: Large files result file not found with expected pattern"
+        TESTS_FAILED=$((TESTS_FAILED + 1))
+        TOTAL_TESTS=$((TOTAL_TESTS + 1))
+    fi
 }
 
 # =============================
@@ -544,6 +595,7 @@ main() {
     test_comparar_cambios_git_mode
     test_comparar_cambios_diff_mode
     test_comparar_cambios_invalid_mode
+    test_encontrar_archivos_grandes
     test_error_handling
     test_full_workflow
     test_edge_cases
