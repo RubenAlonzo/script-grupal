@@ -6,7 +6,7 @@
 #  • Ruben Alonzo – Comparación de cambios (Git/diff)
 #  • Rafael Emilio Abreu – Encontrar archivos grandes
 #  • Nasser Emil Issa Tavares – Generar calendario anual
-#  • Miembro 4 – Func. 4 (pendiente)
+#  • Bradhelyn Poueriet – Sincronizar carpetas
 #  • Miembro 5 – Func. 5 (pendiente)
 
 GRUPO="Grupo1"
@@ -22,7 +22,7 @@ mostrar_info() {
   echo "  - Ruben Alonzo: Comparar cambios"
   echo "  - Rafael Emilio Abreu: Encontrar archivos grandes"
   echo "  - Nasser Emil Issa Tavares: Generar calendario anual"
-  echo "  - Miembro 3–5:  Funcionalidades pendientes"
+  echo "  - Bradhelyn Poueriet: Sincronizar carpetas"
   echo "======================================="
   echo
 }
@@ -130,7 +130,7 @@ if [[ "${BASH_SOURCE[0]}" == "${0}" ]]; then
     echo " 1) Comparar cambios"
     echo " 2) Encontrar archivos grandes"
     echo " 3) Generar calendario anual"
-    echo " 4) Funcionalidad 4"
+    echo " 4) Sincronizar carpetas"
     echo " 5) Funcionalidad 5"
     echo " 0) Salir"
     read -p "Opción [0-5]: " opt
@@ -139,7 +139,7 @@ if [[ "${BASH_SOURCE[0]}" == "${0}" ]]; then
       1) comparar_cambios ;;
       2) encontrar_archivos_grandes ;;
       3) generar_calendario_anual ;;
-      0) echo "¡Hasta luego!"; exit 0 ;;
+      4) sincronizar_carpetas ;;
       *) echo "Elija una opción válida." ;;
     esac
   done
@@ -241,3 +241,44 @@ generar_calendario_anual() {
   echo "  - Reporte: $REPORTE"
   echo "  - Estructura: $ARBOL"
 }
+
+# ==========================================
+# Funcionalidad 4: Sincronizar carpetas con rsync
+# Autor: Bradhelyn Poueriet
+# Permite sincronizar de LOCAL → REMOTO o REMOTO → LOCAL.
+# Soporta modo simulación (--dry) y crea las carpetas si no existen.
+# ==========================================
+sincronizar_carpetas() {
+  echo "======================================"
+  echo "Funcionalidad 4: Sincronizar carpetas"
+  echo "Autor: Bradhelyn Poueriet"
+  echo "======================================"
+
+  read -p "Ruta carpeta LOCAL: " local_path
+  read -p "Ruta carpeta REMOTA: " remote_path
+  read -p "Dirección (1=Local→Remoto, 2=Remoto→Local): " direction
+  read -p "¿Modo simulación? (s/n): " dry_mode
+
+  # Si no existen, crearlas
+  mkdir -p "$local_path" "$remote_path"
+
+  # Preparar flags
+  flags="-avh"
+  if [[ "$dry_mode" =~ ^[sS]$ ]]; then
+    flags="$flags --dry-run"
+    echo "🛈 Modo simulación activado: No se harán cambios reales."
+  fi
+
+  # Ejecutar según dirección
+  if [ "$direction" = "1" ]; then
+    echo "➡️  Sincronizando de LOCAL → REMOTO"
+    rsync $flags "$local_path"/ "$remote_path"/
+  elif [ "$direction" = "2" ]; then
+    echo "⬅️  Sincronizando de REMOTO → LOCAL"
+    rsync $flags "$remote_path"/ "$local_path"/
+  else
+    echo "Opción inválida."
+    return 1
+  fi
+}
+
