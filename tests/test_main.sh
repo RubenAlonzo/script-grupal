@@ -266,7 +266,7 @@ test_menu_display() {
     assert_contains "$output" "1) Comparar cambios" "Option 1"
     assert_contains "$output" "2) Encontrar archivos grandes" "Option 2"
     assert_contains "$output" "3) Generar calendario anual" "Option 3"
-    assert_contains "$output" "4) Funcionalidad 4" "Option 4"
+    assert_contains "$output" "4) Sincronizar carpetas" "Option 4"
     assert_contains "$output" "5) Funcionalidad 5" "Option 5"
     assert_contains "$output" "0) Salir" "Exit option"
     # Note: read -p prompts are not visible in non-interactive mode, so we don't test for them
@@ -305,7 +305,7 @@ test_menu_pending_functions() {
     
     # Test option 4
      local output4=$(printf "4\n0\n" | timeout 5 bash "$SCRIPT_PATH" 2>/dev/null || true)
-    assert_contains "$output4" "Funcionalidad pendiente" "Option 4 pending message"
+    assert_contains "$output4" "Sincronizar carpetas" "Option 4 pending message"
     
     # Test option 5
     local output5=$(printf "5\n0\n" | timeout 5 bash "$SCRIPT_PATH" 2>/dev/null || true)
