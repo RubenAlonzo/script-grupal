@@ -265,7 +265,7 @@ test_menu_display() {
     assert_contains "$output" "Menú:" "Menu header"
     assert_contains "$output" "1) Comparar cambios" "Option 1"
     assert_contains "$output" "2) Encontrar archivos grandes" "Option 2"
-    assert_contains "$output" "3) Funcionalidad 3" "Option 3"
+    assert_contains "$output" "3) Generar calendario anual" "Option 3"
     assert_contains "$output" "4) Funcionalidad 4" "Option 4"
     assert_contains "$output" "5) Funcionalidad 5" "Option 5"
     assert_contains "$output" "0) Salir" "Exit option"
@@ -299,11 +299,12 @@ test_menu_pending_functions() {
     assert_contains "$output2" "-- ENCONTRAR ARCHIVOS GRANDES --" "Option 2 executes large files function"
     
     # Test option 3
-    local output3=$(printf "3\n0\n" | timeout 5 bash "$SCRIPT_PATH" 2>/dev/null || true)
-    assert_contains "$output3" "Funcionalidad pendiente" "Option 3 pending message"
+     local output3=$(printf "3\n0\n" | timeout 5 bash "$SCRIPT_PATH" 2>/dev/null || true)
+    assert_contains "$output3" "Generar calendario anual" "Option 3 pending message"
+   
     
     # Test option 4
-    local output4=$(printf "4\n0\n" | timeout 5 bash "$SCRIPT_PATH" 2>/dev/null || true)
+     local output4=$(printf "4\n0\n" | timeout 5 bash "$SCRIPT_PATH" 2>/dev/null || true)
     assert_contains "$output4" "Funcionalidad pendiente" "Option 4 pending message"
     
     # Test option 5
