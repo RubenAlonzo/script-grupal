@@ -1,0 +1,4 @@
+# Project-specific files to exclude
+CLAUDE.md
+src/main_script.sh
+tests/test_comparar_cambios.sh
