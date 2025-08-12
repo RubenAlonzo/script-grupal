@@ -218,24 +218,24 @@ sincronizar_carpetas() {
   echo "======================================"
 
 read -p "Ruta carpeta LOCAL: " local_path
-  read -p "Ruta carpeta Destino: " destiny_path
+  read -p "Ruta carpeta DESTINO: " destino_path
   read -p "Dirección (1=Local→Destino, 2=Destino→Local): " direction
   read -p "¿Modo simulación? (s/n): " dry_mode
 
-  mkdir -p "$local_path" "$destiny_path"
+  mkdir -p "$local_path" "$destino_path"
 
   flags="-avh"
   if [[ "$dry_mode" =~ ^[sS]$ ]]; then
     flags="$flags --dry-run"
-    echo "Modo simulación activado: No se harán cambios reales."
+    echo "🛈 Modo simulación activado: No se harán cambios reales."
   fi
 
   if [ "$direction" = "1" ]; then
     echo "➡️  Sincronizando de LOCAL → DESTINO"
-    rsync $flags "$local_path"/ "$destiny_path"/
+    rsync $flags "$local_path"/ "$destino_path"/
   elif [ "$direction" = "2" ]; then
     echo "⬅️  Sincronizando de DESTINO → LOCAL"
-    rsync $flags "$destiny_path"/ "$local_path"/
+    rsync $flags "$destino_path"/ "$local_path"/
   else
     echo "Opción inválida."
     exit 1
@@ -243,9 +243,15 @@ read -p "Ruta carpeta LOCAL: " local_path
 
   fecha=$(date +"%Y-%m-%d")
   hora=$(date +"%H:%M:%S")
-  reporte="El_Grupo_Anterior-${fecha}.txt"
 
-  echo "DEBUG: fecha='$fecha', hora='$hora', local_path='$local_path', destiny_path='$destiny_path', direction='$direction', dry_mode='$dry_mode'"
+  # 📂 Carpeta de reportes fija
+  carpeta_reportes="$HOME/reportes"
+  mkdir -p "$carpeta_reportes"
+
+  # 📄 Nombre de archivo con ruta completa
+  reporte="$carpeta_reportes/El_Grupo_Anterior-${fecha}.txt"
+
+  echo "DEBUG: fecha='$fecha', hora='$hora', local_path='$local_path', destino_path='$destino_path', direction='$direction', dry_mode='$dry_mode'"
 
   {
     echo "======================================"
@@ -253,7 +259,7 @@ read -p "Ruta carpeta LOCAL: " local_path
     echo "Fecha: $fecha"
     echo "Hora: $hora"
     echo "Local: $local_path"
-    echo "Destino: $destiny_path"
+    echo "Destino: $destino_path"
     if [ "$direction" = "1" ]; then
       echo "Dirección: LOCAL → DESTINO"
     else
@@ -268,7 +274,7 @@ read -p "Ruta carpeta LOCAL: " local_path
     echo "======================================"
   } > "$reporte"
 
-  echo "📄 Reporte generado: $reporte"
+  echo "📄 Reporte generado en: $reporte"
 }
 
 
