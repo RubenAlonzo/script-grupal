@@ -9,8 +9,11 @@
 #  • Bradhelyn Poueriet – Sincronizar carpetas
 #  • Katherine Langumás - Limpiar archivos antiguos
 
-GRUPO="Grupo1"
+GRUPO="Grupo-Anterior"
 FECHA=$(date +%F_%H-%M-%S)
+mkdir -p "${HOME}/backups"
+REPORTE="${HOME}/backups/${GRUPO}-reporte-$(date +%F).txt"
+log(){ echo "[$(date +%T)] $*" | tee -a "$REPORTE" >/dev/null; }
 
 # Muestra la cabecera con datos del script
 mostrar_info() {
@@ -129,96 +132,87 @@ func_pendiente() {
 # Crea automáticamente la estructura de un año con sus meses, días y 7 subcarpetas por día, ajustando años bisiestos y guardando un reporte con métricas y el árbol de directorios.
 # ==========================================
 generar_calendario_anual() {
-  echo "======================================"
-  echo "Funcionalidad 3: Generar calendario anual"
-  echo "Autor: Nasser Emil Issa Tavares"
-  echo "======================================"
+echo "======================================"
+echo "Estudiante: Nasser Emil Issa Tavares"
+echo "Descripción: Crea Año→Meses→Días→7 subcarpetas por día (ajusta bisiestos)."
+echo "Directorio de ejecución: $(pwd)"
+echo "======================================"
+log "Inicio del proceso crear_calendario.sh en $(pwd)"
 
-  # ---- Entradas ----
-  read -p "Año a crear [$(date +%Y)]: " ANIO
-  ANIO=${ANIO:-$(date +%Y)}
+read -r -p "Año a crear [$(date +%Y)]: " year
+[[ "$year" =~ ^[0-9]{4}$ ]] || year=$(date +%Y)
 
-  read -p "Directorio base donde crear la estructura [$(pwd)]: " BASE_DIR
-  BASE_DIR=${BASE_DIR:-$(pwd)}
+read -r -p "Directorio base [$(pwd)]: " base_dir
+base_dir=${base_dir:-"$(pwd)"}
 
-  read -p "Nombres de las 7 subcarpetas por día (separados por coma) [1,2,3,4,5,6,7]: " SUBS_INPUT
-  SUBS_INPUT=${SUBS_INPUT:-"1,2,3,4,5,6,7"}
+read -r -p "Nombres de las 7 subcarpetas por día (separadas por coma) [1,2,3,4,5,6,7]: " subs_input
+subs_input=${subs_input:-"1,2,3,4,5,6,7"}
 
-  # ---- Preparación ----
-  mkdir -p "${HOME}/backups"
-  local REPORTE="${HOME}/backups/${GRUPO}-reporte-$(date +%F).txt"
-  local DEST="${BASE_DIR}/${ANIO}"
+log "Parámetros -> Año: $year | Base: $base_dir | Subs: $subs_input"
 
-  # helper de log: muestra en pantalla y agrega al reporte
-  log(){ echo "[$(date +%T)] $*" | tee -a "$REPORTE"; }
+# ===== Procesar nombres de subcarpetas =====
+IFS=',' read -r -a SUBS <<< "$subs_input"
+while [ ${#SUBS[@]} -lt 7 ]; do SUBS+=("$(( ${#SUBS[@]} + 1 ))"); done
+[ ${#SUBS[@]} -gt 7 ] && SUBS=("${SUBS[@]:0:7}")
 
-  # Arreglar/recortar a 7 nombres
-  IFS=',' read -r -a SUBS <<< "$SUBS_INPUT"
-  while [ ${#SUBS[@]} -lt 7 ]; do SUBS+=("$(( ${#SUBS[@]} + 1 ))"); done
-  if [ ${#SUBS[@]} -gt 7 ]; then SUBS=("${SUBS[@]:0:7}"); fi
+# ===== Meses y días (ajuste de bisiesto) =====
+MESES=(Enero Febrero Marzo Abril Mayo Junio Julio Agosto Septiembre Octubre Noviembre Diciembre)
+DIAS=(31 28 31 30 31 30 31 31 30 31 30 31)
+if (( (year % 4 == 0 && year % 100 != 0) || (year % 400 == 0) )); then
+  DIAS[1]=29
+  BISIESTO="sí"
+else
+  BISIESTO="no"
+fi
+log "Año bisiesto: $BISIESTO"
 
-  # Meses y días (ajusta Febrero si es bisiesto)
-  local MESES=(Enero Febrero Marzo Abril Mayo Junio Julio Agosto Septiembre Octubre Noviembre Diciembre)
-  local DIAS=(31 28 31 30 31 30 31 31 30 31 30 31)
-  if (( (ANIO % 4 == 0 && ANIO % 100 != 0) || (ANIO % 400 == 0) )); then
-    DIAS[1]=29
-  fi
+# ===== Crear estructura =====
+DEST="${base_dir}/${year}"
+mkdir -p "$DEST" || { log "ERROR: No se pudo crear $DEST"; echo "Error creando $DEST"; exit 1; }
 
-  log "===== INICIO generar_calendario_anual ====="
-  log "Grupo: $GRUPO | Fecha completa: $FECHA"
-  log "Base: $BASE_DIR | Año: $ANIO | Subcarpetas: ${SUBS[*]}"
+total_subs=0
+for i in {0..11}; do
+  mnum=$(printf "%02d" $((i+1)))
+  mdir="${DEST}/${mnum}_${MESES[$i]}"
+  mkdir -p "$mdir"
 
-  # Crear raíz del año
-  mkdir -p "$DEST" || { log "ERROR creando $DEST"; return 1; }
-
-  # Contadores
-  local total_subs=0
-
-  # Crear meses, días y subcarpetas
-  for i in {0..11}; do
-    local mnum mdir mdays
-    mnum=$(printf "%02d" $((i+1)))
-    mdir="${DEST}/${mnum}_${MESES[$i]}"
-    mdays=${DIAS[$i]}
-    mkdir -p "$mdir"
-
-    for d in $(seq -w 1 "$mdays"); do
-      local ddir="${mdir}/${d}"
-      mkdir -p "$ddir"
-      # 7 subcarpetas por día
-      for idx in {0..6}; do
-        # Evitar espacios en nombre de carpeta
-        local sname=$(printf "%02d_%s" $((idx+1)) "${SUBS[$idx]// /_}")
-        mkdir -p "${ddir}/${sname}"
-        total_subs=$((total_subs+1))
-      done
+  for d in $(seq -w 1 "${DIAS[$i]}"); do
+    ddir="${mdir}/${d}"
+    mkdir -p "$ddir"
+    for idx in {0..6}; do
+      sname=$(printf "%02d_%s" $((idx+1)) "${SUBS[$idx]// /_}")
+      mkdir -p "${ddir}/${sname}"
+      total_subs=$((total_subs+1))
     done
   done
+done
+log "Estructura de directorios creada en: $DEST"
 
-  # Métricas con tuberías
-  local total_dirs total_dias
-  total_dirs=$(find "$DEST" -type d | wc -l)                         # tubería
-  total_dias=$(( DIAS[0]+DIAS[1]+DIAS[2]+DIAS[3]+DIAS[4]+DIAS[5]+DIAS[6]+DIAS[7]+DIAS[8]+DIAS[9]+DIAS[10]+DIAS[11] ))
+# ===== Métricas con tuberías y redirecciones =====
+total_dirs=$(find "$DEST" -type d | wc -l)   # tubería: find | wc -l
+total_dias=$(( DIAS[0]+DIAS[1]+DIAS[2]+DIAS[3]+DIAS[4]+DIAS[5]+DIAS[6]+DIAS[7]+DIAS[8]+DIAS[9]+DIAS[10]+DIAS[11] ))
 
-  log "Días del año: $total_dias"
-  log "Subcarpetas creadas (días x 7): $total_subs"
-  log "Carpetas totales (año+meses+días+subcarpetas): $total_dirs"
+log "Métricas -> Días: $total_dias | Subcarpetas (días x 7): $total_subs | Carpetas totales: $total_dirs"
 
-  # Guardar estructura visual a archivo (tree si existe; si no, fallback con find)
-  local ARBOL="${DEST}/estructura_${ANIO}.txt"
-  if command -v tree >/dev/null 2>&1; then
-    tree "$DEST" | tee "$ARBOL" >> "$REPORTE"
-  else
-    find "$DEST" -type d | sed "s|$BASE_DIR/||" | tee "$ARBOL" >> "$REPORTE"
-  fi
-  log "Estructura guardada en: $ARBOL"
-  log "===== FIN generar_calendario_anual ====="
+# ===== Guardar árbol de la estructura (tree si existe; si no, find) =====
+ARBOL="${DEST}/estructura_${year}.txt"
+if command -v tree >/dev/null 2>&1; then
+  tree "$DEST" | tee "$ARBOL" >> "$REPORTE"
+else
+  find "$DEST" -type d | sed "s|$base_dir/||" | tee "$ARBOL" >> "$REPORTE"
+fi
+log "Árbol de directorios guardado en: $ARBOL"
 
-  echo
-  echo "Listo:"
-  echo "  - Ruta: $DEST"
-  echo "  - Reporte: $REPORTE"
-  echo "  - Estructura: $ARBOL"
+log "===== FIN crear_calendario.sh ====="
+
+# ===== Resumen en pantalla =====
+echo
+echo "✅ Estructura creada en: $DEST"
+echo "   - Días del año: $total_dias"
+echo "   - Subcarpetas creadas (días x 7): $total_subs"
+echo "   - Carpetas totales: $total_dirs"
+echo "   - Archivo con la estructura: $ARBOL"
+echo "   - Reporte del proceso: $REPORTE"
 }
 
 # ==========================================
