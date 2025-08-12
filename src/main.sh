@@ -228,25 +228,59 @@ sincronizar_carpetas() {
   echo "======================================"
 
 read -p "Ruta carpeta LOCAL: " local_path
-read -p "Ruta carpeta REMOTA: " remote_path
-read -p "Dirección (1=Local→Remoto, 2=Remoto→Local): " direction
+  read -p "Ruta carpeta REMOTA: " remote_path
+  read -p "Dirección (1=Local→Remoto, 2=Remoto→Local): " direction
+  read -p "¿Modo simulación? (s/n): " dry_mode
 
-# Crear carpetas si no existen
-mkdir -p "$local_path" "$remote_path"
+  mkdir -p "$local_path" "$remote_path"
 
-flags="-avh --progress"
+  flags="-avh"
+  if [[ "$dry_mode" =~ ^[sS]$ ]]; then
+    flags="$flags --dry-run"
+    echo "🛈 Modo simulación activado: No se harán cambios reales."
+  fi
 
-if [ "$direction" = "1" ]; then
-  echo "➡️  Sincronizando de LOCAL → REMOTO..."
-  rsync $flags "$local_path"/ "$remote_path"/
-elif [ "$direction" = "2" ]; then
-  echo "⬅️  Sincronizando de REMOTO → LOCAL..."
-  rsync $flags "$remote_path"/ "$local_path"/
-else
-  echo "Opción inválida."
-  exit 1
-fi
+  if [ "$direction" = "1" ]; then
+    echo "➡️  Sincronizando de LOCAL → REMOTO"
+    rsync $flags "$local_path"/ "$remote_path"/
+  elif [ "$direction" = "2" ]; then
+    echo "⬅️  Sincronizando de REMOTO → LOCAL"
+    rsync $flags "$remote_path"/ "$local_path"/
+  else
+    echo "Opción inválida."
+    exit 1
+  fi
+
+  fecha=$(date +"%Y-%m-%d")
+  hora=$(date +"%H:%M:%S")
+  reporte="El_Grupo_Anterior-${fecha}.txt"
+
+  echo "DEBUG: fecha='$fecha', hora='$hora', local_path='$local_path', remote_path='$remote_path', direction='$direction', dry_mode='$dry_mode'"
+
+  {
+    echo "======================================"
+    echo "REPORTE DE SINCRONIZACIÓN - El Grupo Anterior"
+    echo "Fecha: $fecha"
+    echo "Hora: $hora"
+    echo "Local: $local_path"
+    echo "Remoto: $remote_path"
+    if [ "$direction" = "1" ]; then
+      echo "Dirección: LOCAL → REMOTO"
+    else
+      echo "Dirección: REMOTO → LOCAL"
+    fi
+    if [[ "$dry_mode" =~ ^[sS]$ ]]; then
+      echo "Modo: Simulación"
+    else
+      echo "Modo: Ejecución real"
+    fi
+    echo "Estado: ✅ Sincronización ejecutada correctamente"
+    echo "======================================"
+  } > "$reporte"
+
+  echo "📄 Reporte generado: $reporte"
 }
+
 
 # =============================================================================
 # Funcionalidad 5: Limpieza de Archivos Antiguos.
