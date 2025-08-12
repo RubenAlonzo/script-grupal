@@ -285,19 +285,20 @@ DAYS_TO_DELETE=30
 # Función para limpiar el directorio.
 function cleanup_directory() {
     local target_dir=$1
-    if [ ! -d "$target_dir" ]; then
+    if [ ! -d "$target_dir" ] ; then
         echo "Error: El directorio '$target_dir' no existe."
         return 1
     fi
 
     echo "Buscando y eliminando archivos más antiguos de $DAYS_TO_DELETE días en el directorio: '$target_dir'..."
-    find "$target_dir" -type f -mtime "+$DAYS_TO_DELETE" -delete
+    # Redirecciona los errores a /dev/null para evitar "Permiso denegado"
+    find "$target_dir" -type f -mtime "+$DAYS_TO_DELETE" -delete 2>/dev/null
     echo "Proceso completado. Archivos eliminados."
     return 0
 }
 
 # -----------------------------------------------------------------------------
-# MENÚ PRINCIPAL
+# LÓGICA DE LA FUNCIÓN
 # -----------------------------------------------------------------------------
 
 # Mostrar información inicial
@@ -308,45 +309,36 @@ echo "-------------------------------------------------"
 echo "Este script limpia archivos con más de $DAYS_TO_DELETE días de antigüedad."
 echo "Directorio actual: $(pwd)"
 echo "================================================="
-echo "" # Línea en blanco para mejor legibilidad
+echo ""
 
-while true; do
-    echo "--- Menú de Opciones ---"
-    echo "1) Limpiar el directorio por defecto ($DEFAULT_DIR)"
-    echo "2) Ingresar una ruta personalizada"
-    echo "3) Salir del script"
-    echo "--------------------------"
+# Menú de la funcionalidad 5
+echo "--- Menú de Opciones ---"
+echo "1) Limpiar el directorio por defecto ($DEFAULT_DIR)"
+echo "2) Ingresar una ruta personalizada"
+echo "3) Volver al menú principal"
+echo "--------------------------"
 
-    read -p "Ingresa tu elección (1, 2 o 3): " choice
+read -p "Ingresa tu elección (1, 2 o 3): " choice
 
-    case $choice in
-        1)
-            # Limpiar el directorio por defecto
-            cleanup_directory "$DEFAULT_DIR"
-            break
-            ;;
-        2)
-            # Ingresar una ruta personalizada
-            read -p "Por favor, ingresa la ruta del directorio a limpiar: " custom_dir
-            if cleanup_directory "$custom_dir"; then
-                # Si la función `cleanup_directory` retorna 0 (éxito), salimos del bucle
-                break
-            else
-                # Si la función retorna 1 (error), volvemos al menú
-                echo ""
-                echo "Volviendo al menú..."
-                echo ""
-            fi
-            ;;
-        3)
-            echo "Saliendo del script. ¡Adiós!"
-            exit 0
-            ;;
-        *)
-            echo "Opción no válida. Por favor, elige 1, 2 o 3."
-            ;;
-    esac
-done
+case $choice in
+    1)
+        # Limpiar el directorio por defecto
+        cleanup_directory "$DEFAULT_DIR"
+        ;;
+    2)
+        # Ingresar una ruta personalizada
+        read -p "Por favor, ingresa la ruta del directorio a limpiar: " custom_dir
+        cleanup_directory "$custom_dir"
+        ;;
+    3)
+        echo "Volviendo al menú principal..."
+        ;;
+    *)
+        echo "Opción no válida. Volviendo al menú principal..."
+        ;;
+esac
+
+echo # Línea en blanco para mejor legibilidad
 }
 
 # Menú principal - solo ejecutar si el script es llamado directamente
