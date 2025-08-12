@@ -1,7 +1,7 @@
 #!/bin/bash
 
 # PROYECTO FINAL – SCRIPT GRUPAL
-# Curso: Sistemas Operativos | Grupo: Grupo1
+# Curso: Sistemas Operativos | Grupo: El grupo anterior
 # Integrantes:
 #  • Ruben Alonzo – Comparación de cambios (Git/diff)
 #  • Rafael Emilio Abreu – Encontrar archivos grandes
@@ -15,7 +15,6 @@ mkdir -p "${HOME}/backups"
 REPORTE="${HOME}/backups/${GRUPO}-reporte-$(date +%F).txt"
 log(){ echo "[$(date +%T)] $*" | tee -a "$REPORTE" >/dev/null; }
 
-# Muestra la cabecera con datos del script
 mostrar_info() {
   echo "======================================="
   echo "Grupo:      $GRUPO"
@@ -80,17 +79,14 @@ encontrar_archivos_grandes() {
   salida="${HOME}/${GRUPO}_archivos_grandes_100M_$FECHA.txt"
   echo "Buscando archivos mayores a 100MB en $directorio..."
   
-  # Create a temporary file for processing
+  # Creamos un archivo temporal para procesmiento
   temp_file=$(mktemp)
   
-  # Find files and format output
   find "$directorio" -type f -size +100M -exec ls -lh {} + 2>/dev/null | while read -r permisos enlaces usuario grupo tamano mes dia hora archivo; do
     echo "Tamaño: $tamano | Archivo: $archivo"
   done > "$temp_file"
   
-  # Check if any files were found
   if [ -s "$temp_file" ]; then
-    # Add header to output file
     echo "========================================" > "$salida"
     echo "ARCHIVOS MAYORES A 100MB" >> "$salida"
     echo "Directorio buscado: $directorio" >> "$salida"
@@ -98,10 +94,9 @@ encontrar_archivos_grandes() {
     echo "========================================" >> "$salida"
     echo "" >> "$salida"
     
-    # Add formatted results
     cat "$temp_file" >> "$salida"
     
-    # Count files found
+    # Contamos el número de archivos encontrados
     num_archivos=$(wc -l < "$temp_file")
     echo "" >> "$salida"
     echo "========================================" >> "$salida"
@@ -113,23 +108,18 @@ encontrar_archivos_grandes() {
     echo "No se encontraron archivos mayores a 100MB."
   fi
   
-  # Clean up temp file
+  # Eliminamos el archivo temporal
   rm -f "$temp_file"
   
   echo "Resultados guardados en: $salida"
   echo
 }
 
-# Placeholder genérico para las demás funciones
-func_pendiente() {
-  echo "Funcionalidad pendiente de implementación."
-  echo
-}
-
 # ==========================================
 # Nasser Emil Issa Tavares
 # Funcionalidad 3: generar_calendario_anual
-# Crea automáticamente la estructura de un año con sus meses, días y 7 subcarpetas por día, ajustando años bisiestos y guardando un reporte con métricas y el árbol de directorios.
+# Crea automáticamente la estructura de un año con sus meses, días y 7 subcarpetas por día, 
+# ajustando años bisiestos y guardando un reporte con métricas y el árbol de directorios.
 # ==========================================
 generar_calendario_anual() {
 echo "======================================"
