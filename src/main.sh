@@ -227,7 +227,7 @@ read -p "Ruta carpeta LOCAL: " local_path
   flags="-avh"
   if [[ "$dry_mode" =~ ^[sS]$ ]]; then
     flags="$flags --dry-run"
-    echo "🛈 Modo simulación activado: No se harán cambios reales."
+    echo "Modo simulación activado: No se harán cambios reales."
   fi
 
   if [ "$direction" = "1" ]; then
@@ -373,6 +373,7 @@ if [[ "${BASH_SOURCE[0]}" == "${0}" ]]; then
       3) generar_calendario_anual ;;
       4) sincronizar_carpetas ;;
       5) limpieza_archivos_antiguos ;;
+      0) exit 0 ;;
       *) echo "Elija una opción válida." ;;
     esac
   done
