@@ -258,58 +258,86 @@ sincronizar_carpetas() {
 # =============================================================================
 # Funcionalidad 5: Limpieza de Archivos Antiguos.
 # Autor: Katherine Langumás
-# Descripción: Este script ofrece un menú interactivo para limpiar archivos que tengan más de 30 días en un directorio específico.
-#              Permite elegir entre una ruta por defecto o una personalizada.
+# Descripción: Limpia archivos con más de 30 días de antigüedad en un directorio.
 # =============================================================================
 limpieza_archivos_antiguos() {
-  DEFAULT_DIR="/tmp"
-  DAYS_TO_DELETE=30
+# Define el directorio por defecto y la antigüedad de los archivos a eliminar.
+DEFAULT_DIR="/tmp"
+DAYS_TO_DELETE=30
 
-  # Mostrar información inicial
-  echo "================================================="
-  echo "Funcionalidad 5 - Limpieza de Archivos Antiguos"
-  echo "Creado por: Katherine Langumás"
-  echo "================================================="
+# Define el directorio donde se guardarán los reportes.
+REPORT_DIR="/home/Reportes_Limpieza"
+# Define la ruta del reporte con el nombre del grupo, fecha y hora.
+REPORT_PATH="${REPORT_DIR}/${GRUPO}-reporte-$(date +%F_%H-%M-%S).log"
 
-  function cleanup_directory() {
+# Crea el directorio de reportes si no existe.
+mkdir -p "$REPORT_DIR"
+
+# Muestra la cabecera de la funcionalidad en la terminal.
+echo "================================================="
+echo "Funcionalidad 5 - Limpieza de Archivos Antiguos"
+echo "Creado por: Katherine Langumás"
+echo "Descripción: Limpia archivos con más de $DAYS_TO_DELETE días de antigüedad."
+echo "Ruta de ejecución: $(pwd)"
+echo "================================================="
+echo "El reporte de la ejecución se guardará en: $REPORT_PATH"
+
+# Función interna para buscar y eliminar archivos.
+function cleanup_directory() {
     local target_dir=$1
+   
+    # Escribe el encabezado del reporte.
+    echo "==========================================" > "$REPORT_PATH"
+    echo "Reporte de Limpieza - $(date)" >> "$REPORT_PATH"
+    echo "Directorio analizado: '$target_dir'" >> "$REPORT_PATH"
+    echo "------------------------------------------" >> "$REPORT_PATH"
+
+    # Verifica si el directorio existe y registra el resultado en el reporte.
     if [ ! -d "$target_dir" ]; then
-      echo "Error: El directorio '$target_dir' no existe."
-      return 1
+        echo "Error: El directorio '$target_dir' no existe." | tee -a "$REPORT_PATH"
+        return 1
     fi
-    echo "Eliminando archivos > $DAYS_TO_DELETE días en '$target_dir'..."
-    find "$target_dir" -type f -mtime "+$DAYS_TO_DELETE" -delete 2>/dev/null
-    echo "Proceso completado."
+   
+    # Registra el inicio del proceso en el reporte.
+    echo "Iniciando la búsqueda y eliminación de archivos." | tee -a "$REPORT_PATH"
+    echo "Buscando archivos con más de $DAYS_TO_DELETE días..." | tee -a "$REPORT_PATH"
+   
+    # Ejecuta el comando find y registra la lista de archivos eliminados en el reporte.
+    find "$target_dir" -type f -mtime "+$DAYS_TO_DELETE" -delete -print >> "$REPORT_PATH" 2>> "$REPORT_PATH"
+   
+    # Registra el fin del proceso en el reporte.
+    echo "Proceso de eliminación completado." | tee -a "$REPORT_PATH"
+   
+    # Muestra un mensaje final en pantalla.
+    echo "Proceso completado. Revisa el reporte para más detalles."
     return 0
-  }
+}
 
-  echo "--- Menú de Opciones ---"
-  echo "1) Limpiar directorio por defecto ($DEFAULT_DIR)"
-  echo "2) Ingresar ruta personalizada"
-  echo "3) Volver al menú principal"
+# Muestra el menú de opciones para la interacción.
+echo "--- Menú de Opciones ---"
+echo "1) Limpiar directorio por defecto ($DEFAULT_DIR)"
+echo "2) Ingresar ruta personalizada"
+echo "3) Volver al menú principal"
 
-  while true; do
-    read -p "Elija opción: " choice
-    case $choice in
-      1)
+# Lee la elección del usuario y ejecuta la acción correspondiente.
+read -p "Ingresa tu elección (1, 2 o 3): " choice
+
+case $choice in
+    1)
         cleanup_directory "$DEFAULT_DIR"
-        break
         ;;
-      2)
-        read -p "Ingrese la ruta: " custom_dir
+    2)
+        read -p "Ingresa la ruta del directorio a limpiar: " custom_dir
         cleanup_directory "$custom_dir"
-        break
         ;;
-      3)
+    3)
         echo "Volviendo al menú principal."
-        break
         ;;
-      *)
-        echo "Opción no válida. Intente de nuevo."
+    *)
+        echo "Opción no válida. Volviendo al menú principal."
         ;;
-    esac
-  done
-  echo
+esac
+echo
 }
 
 # Menú principal - solo ejecutar si el script es llamado directamente
