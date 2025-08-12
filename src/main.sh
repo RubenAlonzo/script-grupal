@@ -293,12 +293,9 @@ DEFAULT_DIR="/tmp"
 DAYS_TO_DELETE=30
 
 # Define el directorio donde se guardarán los reportes.
-REPORT_DIR="/home/Reportes_Limpieza"
+REPORT_DIR="{HOME}/backups/"
 # Define la ruta del reporte con el nombre del grupo, fecha y hora.
-REPORT_PATH="${REPORT_DIR}/${GRUPO}-reporte-$(date +%F_%H-%M-%S).log"
-
-# Crea el directorio de reportes si no existe.
-mkdir -p "$REPORT_DIR"
+REPORT_PATH="${REPORT_DIR}/${GRUPO}-reporte-$(date +%F_%H-%M-%S).txt"
 
 # Muestra la cabecera de la funcionalidad en la terminal.
 echo "================================================="
