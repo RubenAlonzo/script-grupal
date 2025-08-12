@@ -227,32 +227,25 @@ sincronizar_carpetas() {
   echo "Autor: Bradhelyn Poueriet"
   echo "======================================"
 
-  read -p "Ruta carpeta LOCAL: " local_path
-  read -p "Ruta carpeta REMOTA: " remote_path
-  read -p "Dirección (1=Local→Remoto, 2=Remoto→Local): " direction
-  read -p "¿Modo simulación? (s/n): " dry_mode
+read -p "Ruta carpeta LOCAL: " local_path
+read -p "Ruta carpeta REMOTA: " remote_path
+read -p "Dirección (1=Local→Remoto, 2=Remoto→Local): " direction
 
-  # Si no existen, crearlas
-  mkdir -p "$local_path" "$remote_path"
+# Crear carpetas si no existen
+mkdir -p "$local_path" "$remote_path"
 
-  # Preparar flags
-  flags="-avh"
-  if [[ "$dry_mode" =~ ^[sS]$ ]]; then
-    flags="$flags --dry-run"
-    echo "🛈 Modo simulación activado: No se harán cambios reales."
-  fi
+flags="-avh --progress"
 
-  # Ejecutar según dirección
-  if [ "$direction" = "1" ]; then
-    echo "➡️  Sincronizando de LOCAL → REMOTO"
-    rsync $flags "$local_path"/ "$remote_path"/
-  elif [ "$direction" = "2" ]; then
-    echo "⬅️  Sincronizando de REMOTO → LOCAL"
-    rsync $flags "$remote_path"/ "$local_path"/
-  else
-    echo "Opción inválida."
-    return 1
-  fi
+if [ "$direction" = "1" ]; then
+  echo "➡️  Sincronizando de LOCAL → REMOTO..."
+  rsync $flags "$local_path"/ "$remote_path"/
+elif [ "$direction" = "2" ]; then
+  echo "⬅️  Sincronizando de REMOTO → LOCAL..."
+  rsync $flags "$remote_path"/ "$local_path"/
+else
+  echo "Opción inválida."
+  exit 1
+fi
 }
 
 # =============================================================================
