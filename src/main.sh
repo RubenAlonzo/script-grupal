@@ -268,77 +268,54 @@ sincronizar_carpetas() {
 #              Permite elegir entre una ruta por defecto o una personalizada.
 # =============================================================================
 limpieza_archivos_antiguos() {
-# -----------------------------------------------------------------------------
-# CONFIGURACIÓN
-# -----------------------------------------------------------------------------
+  DEFAULT_DIR="/tmp"
+  DAYS_TO_DELETE=30
 
-# Directorio por defecto.
-DEFAULT_DIR="/tmp"
+  # Mostrar información inicial
+  echo "================================================="
+  echo "Funcionalidad 5 - Limpieza de Archivos Antiguos"
+  echo "Creado por: Katherine Langumás"
+  echo "================================================="
 
-# Antigüedad de los archivos a eliminar en días.
-DAYS_TO_DELETE=30
-
-# -----------------------------------------------------------------------------
-# FUNCIONES
-# -----------------------------------------------------------------------------
-
-# Función para limpiar el directorio.
-function cleanup_directory() {
+  function cleanup_directory() {
     local target_dir=$1
-    if [ ! -d "$target_dir" ] ; then
-        echo "Error: El directorio '$target_dir' no existe."
-        return 1
+    if [ ! -d "$target_dir" ]; then
+      echo "Error: El directorio '$target_dir' no existe."
+      return 1
     fi
-
-    echo "Buscando y eliminando archivos más antiguos de $DAYS_TO_DELETE días en el directorio: '$target_dir'..."
-    # Redirecciona los errores a /dev/null para evitar "Permiso denegado"
+    echo "Eliminando archivos > $DAYS_TO_DELETE días en '$target_dir'..."
     find "$target_dir" -type f -mtime "+$DAYS_TO_DELETE" -delete 2>/dev/null
-    echo "Proceso completado. Archivos eliminados."
+    echo "Proceso completado."
     return 0
-}
+  }
 
-# -----------------------------------------------------------------------------
-# LÓGICA DE LA FUNCIÓN
-# -----------------------------------------------------------------------------
+  echo "--- Menú de Opciones ---"
+  echo "1) Limpiar directorio por defecto ($DEFAULT_DIR)"
+  echo "2) Ingresar ruta personalizada"
+  echo "3) Volver al menú principal"
 
-# Mostrar información inicial
-echo "================================================="
-echo "Funcionalidad 5 - Limpieza de Archivos Antiguos"
-echo "Creado por: Katherine Langumás"
-echo "-------------------------------------------------"
-echo "Este script limpia archivos con más de $DAYS_TO_DELETE días de antigüedad."
-echo "Directorio actual: $(pwd)"
-echo "================================================="
-echo ""
-
-# Menú de la funcionalidad 5
-echo "--- Menú de Opciones ---"
-echo "1) Limpiar el directorio por defecto ($DEFAULT_DIR)"
-echo "2) Ingresar una ruta personalizada"
-echo "3) Volver al menú principal"
-echo "--------------------------"
-
-read -p "Ingresa tu elección (1, 2 o 3): " choice
-
-case $choice in
-    1)
-        # Limpiar el directorio por defecto
+  while true; do
+    read -p "Elija opción: " choice
+    case $choice in
+      1)
         cleanup_directory "$DEFAULT_DIR"
+        break
         ;;
-    2)
-        # Ingresar una ruta personalizada
-        read -p "Por favor, ingresa la ruta del directorio a limpiar: " custom_dir
+      2)
+        read -p "Ingrese la ruta: " custom_dir
         cleanup_directory "$custom_dir"
+        break
         ;;
-    3)
-        echo "Volviendo al menú principal..."
+      3)
+        echo "Volviendo al menú principal."
+        break
         ;;
-    *)
-        echo "Opción no válida. Volviendo al menú principal..."
+      *)
+        echo "Opción no válida. Intente de nuevo."
         ;;
-esac
-
-echo # Línea en blanco para mejor legibilidad
+    esac
+  done
+  echo
 }
 
 # Menú principal - solo ejecutar si el script es llamado directamente
