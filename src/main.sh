@@ -278,6 +278,7 @@ read -p "Ruta carpeta LOCAL: " local_path
 }
 
 
+
 # =============================================================================
 # Funcionalidad 5: Limpieza de Archivos Antiguos.
 # Autor: Katherine Langumás
@@ -289,9 +290,12 @@ DEFAULT_DIR="/tmp"
 DAYS_TO_DELETE=30
 
 # Define el directorio donde se guardarán los reportes.
-REPORT_DIR="{HOME}/backups/"
+REPORT_DIR="/home/Reportes_Limpieza"
 # Define la ruta del reporte con el nombre del grupo, fecha y hora.
-REPORT_PATH="${REPORT_DIR}/${GRUPO}-reporte-$(date +%F_%H-%M-%S).txt"
+REPORT_PATH="${REPORT_DIR}/${GRUPO}-reporte-$(date +%F_%H-%M-%S).log"
+
+# Crea el directorio de reportes si no existe.
+mkdir -p "$REPORT_DIR"
 
 # Muestra la cabecera de la funcionalidad en la terminal.
 echo "================================================="
@@ -359,6 +363,7 @@ case $choice in
 esac
 echo
 }
+
 
 # Menú principal - solo ejecutar si el script es llamado directamente
 if [[ "${BASH_SOURCE[0]}" == "${0}" ]]; then
