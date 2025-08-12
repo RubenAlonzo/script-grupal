@@ -218,11 +218,11 @@ sincronizar_carpetas() {
   echo "======================================"
 
 read -p "Ruta carpeta LOCAL: " local_path
-  read -p "Ruta carpeta REMOTA: " remote_path
-  read -p "Dirección (1=Local→Remoto, 2=Remoto→Local): " direction
+  read -p "Ruta carpeta Destino: " destiny_path
+  read -p "Dirección (1=Local→Destino, 2=Destino→Local): " direction
   read -p "¿Modo simulación? (s/n): " dry_mode
 
-  mkdir -p "$local_path" "$remote_path"
+  mkdir -p "$local_path" "$destiny_path"
 
   flags="-avh"
   if [[ "$dry_mode" =~ ^[sS]$ ]]; then
@@ -231,11 +231,11 @@ read -p "Ruta carpeta LOCAL: " local_path
   fi
 
   if [ "$direction" = "1" ]; then
-    echo "➡️  Sincronizando de LOCAL → REMOTO"
-    rsync $flags "$local_path"/ "$remote_path"/
+    echo "➡️  Sincronizando de LOCAL → DESTINO"
+    rsync $flags "$local_path"/ "$destiny_path"/
   elif [ "$direction" = "2" ]; then
-    echo "⬅️  Sincronizando de REMOTO → LOCAL"
-    rsync $flags "$remote_path"/ "$local_path"/
+    echo "⬅️  Sincronizando de DESTINO → LOCAL"
+    rsync $flags "$destiny_path"/ "$local_path"/
   else
     echo "Opción inválida."
     exit 1
@@ -245,7 +245,7 @@ read -p "Ruta carpeta LOCAL: " local_path
   hora=$(date +"%H:%M:%S")
   reporte="El_Grupo_Anterior-${fecha}.txt"
 
-  echo "DEBUG: fecha='$fecha', hora='$hora', local_path='$local_path', remote_path='$remote_path', direction='$direction', dry_mode='$dry_mode'"
+  echo "DEBUG: fecha='$fecha', hora='$hora', local_path='$local_path', destiny_path='$destiny_path', direction='$direction', dry_mode='$dry_mode'"
 
   {
     echo "======================================"
@@ -253,11 +253,11 @@ read -p "Ruta carpeta LOCAL: " local_path
     echo "Fecha: $fecha"
     echo "Hora: $hora"
     echo "Local: $local_path"
-    echo "Remoto: $remote_path"
+    echo "Destino: $destiny_path"
     if [ "$direction" = "1" ]; then
-      echo "Dirección: LOCAL → REMOTO"
+      echo "Dirección: LOCAL → DESTINO"
     else
-      echo "Dirección: REMOTO → LOCAL"
+      echo "Dirección: DESTINO → LOCAL"
     fi
     if [[ "$dry_mode" =~ ^[sS]$ ]]; then
       echo "Modo: Simulación"
