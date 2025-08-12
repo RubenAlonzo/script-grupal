@@ -7,7 +7,7 @@
 #  • Rafael Emilio Abreu – Encontrar archivos grandes
 #  • Nasser Emil Issa Tavares – Generar calendario anual
 #  • Bradhelyn Poueriet – Sincronizar carpetas
-#  • Miembro 5 – Func. 5 (pendiente)
+#  • Katherine Langumás - Limpiar archivos antiguos
 
 GRUPO="Grupo1"
 FECHA=$(date +%F_%H-%M-%S)
@@ -23,9 +23,34 @@ mostrar_info() {
   echo "  - Rafael Emilio Abreu: Encontrar archivos grandes"
   echo "  - Nasser Emil Issa Tavares: Generar calendario anual"
   echo "  - Bradhelyn Poueriet: Sincronizar carpetas"
+  echo "  - Katherine Langumás: Limpiar archivos antiguos"
   echo "======================================="
   echo
 }
+
+# Menú principal - solo ejecutar si el script es llamado directamente
+if [[ "${BASH_SOURCE[0]}" == "${0}" ]]; then
+  while true; do
+    mostrar_info
+    echo "Menú:"
+    echo " 1) Comparar cambios"
+    echo " 2) Encontrar archivos grandes"
+    echo " 3) Generar calendario anual"
+    echo " 4) Sincronizar carpetas"
+    echo " 5) Limpieza de archivos antiguos"
+    echo " 0) Salir"
+    read -p "Opción [0-5]: " opt
+
+    case "$opt" in
+      1) comparar_cambios ;;
+      2) encontrar_archivos_grandes ;;
+      3) generar_calendario_anual ;;
+      4) sincronizar_carpetas ;;
+      5) limpieza_archivos_antiguos ;;
+      *) echo "Elija una opción válida." ;;
+    esac
+  done
+fi
 
 # Ruben Alonzo.
 # Función para comparar cambios: Git o diff
@@ -122,28 +147,6 @@ func_pendiente() {
   echo
 }
 
-# Menú principal - solo ejecutar si el script es llamado directamente
-if [[ "${BASH_SOURCE[0]}" == "${0}" ]]; then
-  while true; do
-    mostrar_info
-    echo "Menú:"
-    echo " 1) Comparar cambios"
-    echo " 2) Encontrar archivos grandes"
-    echo " 3) Generar calendario anual"
-    echo " 4) Sincronizar carpetas"
-    echo " 5) Funcionalidad 5"
-    echo " 0) Salir"
-    read -p "Opción [0-5]: " opt
-
-    case "$opt" in
-      1) comparar_cambios ;;
-      2) encontrar_archivos_grandes ;;
-      3) generar_calendario_anual ;;
-      4) sincronizar_carpetas ;;
-      *) echo "Elija una opción válida." ;;
-    esac
-  done
-fi
 # ==========================================
 # Nasser Emil Issa Tavares
 # Funcionalidad 3: generar_calendario_anual
@@ -282,3 +285,90 @@ sincronizar_carpetas() {
   fi
 }
 
+# =============================================================================
+# Funcionalidad 5: Limpieza de Archivos Antiguos.
+# Autor: Katherine Langumás
+# Descripción: Este script ofrece un menú interactivo para limpiar archivos que tengan más de 30 días en un directorio específico.
+#              Permite elegir entre una ruta por defecto o una personalizada.
+# =============================================================================
+limpieza_archivos_antiguos() {
+# -----------------------------------------------------------------------------
+# CONFIGURACIÓN
+# -----------------------------------------------------------------------------
+
+# Directorio por defecto.
+DEFAULT_DIR="/tmp"
+
+# Antigüedad de los archivos a eliminar en días.
+DAYS_TO_DELETE=30
+
+# -----------------------------------------------------------------------------
+# FUNCIONES
+# -----------------------------------------------------------------------------
+
+# Función para limpiar el directorio.
+function cleanup_directory() {
+    local target_dir=$1
+    if [ ! -d "$target_dir" ]; then
+        echo "Error: El directorio '$target_dir' no existe."
+        return 1
+    fi
+
+    echo "Buscando y eliminando archivos más antiguos de $DAYS_TO_DELETE días en el directorio: '$target_dir'..."
+    find "$target_dir" -type f -mtime "+$DAYS_TO_DELETE" -delete
+    echo "Proceso completado. Archivos eliminados."
+    return 0
+}
+
+# -----------------------------------------------------------------------------
+# MENÚ PRINCIPAL
+# -----------------------------------------------------------------------------
+
+# Mostrar información inicial
+echo "================================================="
+echo "Funcionalidad 5 - Limpieza de Archivos Antiguos"
+echo "Creado por: Katherine Langumás"
+echo "-------------------------------------------------"
+echo "Este script limpia archivos con más de $DAYS_TO_DELETE días de antigüedad."
+echo "Directorio actual: $(pwd)"
+echo "================================================="
+echo "" # Línea en blanco para mejor legibilidad
+
+while true; do
+    echo "--- Menú de Opciones ---"
+    echo "1) Limpiar el directorio por defecto ($DEFAULT_DIR)"
+    echo "2) Ingresar una ruta personalizada"
+    echo "3) Salir del script"
+    echo "--------------------------"
+
+    read -p "Ingresa tu elección (1, 2 o 3): " choice
+
+    case $choice in
+        1)
+            # Limpiar el directorio por defecto
+            cleanup_directory "$DEFAULT_DIR"
+            break
+            ;;
+        2)
+            # Ingresar una ruta personalizada
+            read -p "Por favor, ingresa la ruta del directorio a limpiar: " custom_dir
+            if cleanup_directory "$custom_dir"; then
+                # Si la función `cleanup_directory` retorna 0 (éxito), salimos del bucle
+                break
+            else
+                # Si la función retorna 1 (error), volvemos al menú
+                echo ""
+                echo "Volviendo al menú..."
+                echo ""
+            fi
+            ;;
+        3)
+            echo "Saliendo del script. ¡Adiós!"
+            exit 0
+            ;;
+        *)
+            echo "Opción no válida. Por favor, elige 1, 2 o 3."
+            ;;
+    esac
+done
+}
