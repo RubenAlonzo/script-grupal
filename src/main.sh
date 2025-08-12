@@ -9,7 +9,7 @@
 #  • Bradhelyn Poueriet – Sincronizar carpetas
 #  • Katherine Langumás - Limpiar archivos antiguos
 
-GRUPO="Grupo1"
+GRUPO="Grupo-Anterior"
 FECHA=$(date +%F_%H-%M-%S)
 mkdir -p "${HOME}/backups"
 REPORTE="${HOME}/backups/${GRUPO}-reporte-$(date +%F).txt"
